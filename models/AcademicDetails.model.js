@@ -1,7 +1,6 @@
-
-
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Joi = require('joi');
 
 const academicDetailsSchema = new Schema({
     result: {
@@ -9,14 +8,9 @@ const academicDetailsSchema = new Schema({
         ref: 'AcademicResult',
         required: true
     },
-    applied: [
-    {        
-        type:{ 
-            offer :{
+    applied: [{    
             type: Schema.Types.ObjectId,
-            ref: 'Offer',
-            }   
-        }
+            ref: 'Offer',  
     }],
     selected: {
         type: {
@@ -39,4 +33,30 @@ const academicDetailsSchema = new Schema({
 });
 
 const AcademicDetails = mongoose.model('AcademicDetails', academicDetailsSchema);
-module.exports = AcademicDetails;
+
+//JOI schema
+const objectId = Joi.string().hex().length(24); // MongoDB ObjectId validation
+
+const academicDetailsJoiSchema = Joi.object({
+    _id: objectId.optional(),
+    result: objectId.required(),
+
+    applied: Joi.array().items(
+        Joi.object({
+        offer: objectId.required()
+        })
+    ).optional().default([]),
+
+    selected: Joi.object({
+        offer: objectId.required(),
+        salary: Joi.number().optional()
+    }).optional().default({}),
+
+    passout_year: Joi.number().required(),
+
+    createdAt: Joi.date().optional(),
+    updatedAt: Joi.date().optional()
+});
+
+
+module.exports = {AcademicDetails, academicDetailsJoiSchema };

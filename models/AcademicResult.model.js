@@ -1,3 +1,7 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const Joi = require('joi');
+
 const academicResultSchema = new Schema({
     ssc:{
         type:{
@@ -91,4 +95,51 @@ const academicResultSchema = new Schema({
 
 
 const AcademicResult = mongoose.model('AcademicResult', academicResultSchema);
-module.exports = AcademicResult;
+
+
+//joi schema
+const objectId = Joi.string().hex().length(24).optional();
+
+const academicResultJoiSchema = Joi.object({
+    _id: objectId,    
+    ssc: Joi.object({
+        percentage: Joi.number().required(),
+        completion_year: Joi.number().required()
+    }).required(),
+
+    hsc: Joi.object({
+        percentage: Joi.number().optional(),
+        completion_year: Joi.number().optional()
+    }).optional(),
+
+    diploma: Joi.object({
+        result: Joi.object({
+        sem1: Joi.number().optional(),
+        sem2: Joi.number().optional(),
+        sem3: Joi.number().optional(),
+        sem4: Joi.number().optional(),
+        sem5: Joi.number().optional(),
+        sem6: Joi.number().optional(),
+        }).optional(),
+        completion_year: Joi.number().optional()
+    }).optional(),
+
+    degree: Joi.object({
+        result: Joi.object({
+        sem1: Joi.number().optional(),
+        sem2: Joi.number().optional(),
+        sem3: Joi.number().optional(),
+        sem4: Joi.number().optional(),
+        sem5: Joi.number().optional(),
+        sem6: Joi.number().optional(),
+        sem7: Joi.number().optional(),
+        sem8: Joi.number().optional(),
+        }).optional(),
+        completion_year: Joi.number().optional()
+    }).optional(),
+    createdAt: Joi.date().optional(),
+    updatedAt: Joi.date().optional()
+});
+
+
+module.exports = {AcademicResult, academicResultJoiSchema};

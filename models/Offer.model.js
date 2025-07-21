@@ -1,5 +1,4 @@
-
-
+const Joi = require('joi');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -65,4 +64,35 @@ const offerSchema = new Schema({
 });
 
 const Offer = mongoose.model('Offer', offerSchema);
-module.exports = Offer;
+
+//joi schema
+const objectId = Joi.string().hex().length(24);
+
+const offerJoiSchema = Joi.object({
+  company: objectId.required(),
+
+  role: Joi.string().required(),
+
+  location: objectId.optional(), // not required
+
+  total_opening: Joi.number().required(),
+
+  drive: Joi.string().valid('on campus', 'off campus').required(),
+
+  type: Joi.string().valid('internship', 'placement', 'internship and placement').required(),
+
+  sector: Joi.string().valid('IT', 'Core', 'Management').required(),
+
+  salary: Joi.object({
+    min: Joi.number().optional(),
+    max: Joi.number().required()
+  }).optional(), // salary itself is not marked required in mongoose
+
+  criteria: objectId.optional(),
+
+  result: objectId.required(),
+
+  skills: Joi.array().items(Joi.string()).min(1).required()
+});
+
+module.exports = {Offer,offerJoiSchema};

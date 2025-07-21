@@ -1,5 +1,5 @@
 class ApiSuccess {
-  constructor(data = {}, message = 'Request successful', statusCode = 200) {
+  constructor(statusCode = 200, message = 'Request Successful', data = {}) {
     this.success = true;
     this.message = message;
     this.statusCode = statusCode;

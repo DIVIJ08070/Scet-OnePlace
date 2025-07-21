@@ -37,7 +37,7 @@ const studentSchema = new Schema({
   },
   caste: {
     type: String,
-    enum: ['General', 'OBC', 'SC', 'ST', 'SEBC', 'Other'],
+    enum: ['General', 'OBC', 'SC', 'ST', 'SEBC'],
   },
   academic_details: {
     type: Schema.Types.ObjectId,
