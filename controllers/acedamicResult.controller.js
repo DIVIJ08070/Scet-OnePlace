@@ -12,7 +12,7 @@ const createAcademicResult = async (_academicResult) => {
         throw new ApiError(400, 'Invalid schema of Acadmic Result', error.details[0].message);
     }
 
-    //create intance
+    //create instance
     const newAcademicResult = new AcademicResult(_academicResult);
 
     //save data
