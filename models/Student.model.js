@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const generateHash = require('../utils/generateHash.util');
+const Joi = require('joi');
 
 const studentSchema = new Schema({
   name: {
@@ -105,6 +106,59 @@ studentSchema.methods.generateRefreshToken = function() {
 };
 
 
+const studentJoiSchema = Joi.object({
+  _id: objectId.optional(),
+
+  name: Joi.string().required().messages({
+    'any.required': '"name" is required',
+    'string.base': '"name" must be a string'
+  }),
+
+  enrollment_no: Joi.string().required().messages({
+    'any.required': '"enrollment_no" is required'
+  }),
+
+  dob: Joi.date().required().messages({
+    'any.required': '"dob" (Date of Birth) is required'
+  }),
+
+  email: Joi.string().email().required().messages({
+    'any.required': '"email" is required',
+    'string.email': '"email" must be a valid email address'
+  }),
+
+  password: Joi.string().min(6).required().messages({
+    'any.required': '"password" is required',
+    'string.min': '"password" must be at least 6 characters'
+  }),
+
+  contact: Joi.string().required().messages({
+    'any.required': '"contact" is required'
+  }),
+
+  gender: Joi.string()
+    .valid('Male', 'Female', 'Other')
+    .required()
+    .messages({
+      'any.required': '"gender" is required',
+      'any.only': '"gender" must be one of [Male, Female, Other]'
+    }),
+
+  caste: Joi.string()
+    .valid('General', 'OBC', 'SC', 'ST', 'SEBC')
+    .optional(),
+
+  academic_details: objectId.optional(),
+
+  address: objectId.optional(),
+
+  refresh_token: Joi.string().allow(null).optional(),
+
+  createdAt: Joi.date().optional(),
+  updatedAt: Joi.date().optional()
+});
+
+
 const Student = mongoose.model('Student', studentSchema);
 
-module.exports = Student;
+module.exports = {Student, studentJoiSchema};

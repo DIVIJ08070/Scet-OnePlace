@@ -72,3 +72,5 @@ const deletOffer = async(_id) =>
     }
     return new ApiSuccess(200,'offer deleted succesfuly',{offer:deletedOffer})
 }
+
+module.exports = {createOffer, retriveOffer, updateOffer, deletOffer};  

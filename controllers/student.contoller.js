@@ -1,64 +1,74 @@
-const Student = require('../models/student.model');
+const {Student, studentJoiSchema} = require('./Student.model');
+const ApiError = require('../utils/response/ApiError.util');
+const ApiSuccess = require('../utils/response/ApiSuccess.util');
+const AcedemeicDetailsController = require('./academicDetails.controller');
 
-// CREATE a new student
-const createStudent = async (studentData) => {
-  try {
-    const student = new Student(req.body);
-    await student.save();
-    res.status(201).json(student);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
 
-// READ all students
-exports.getAllStudents = async (req, res) => {
-  try {
-    const students = await Student.find()
-      .populate('academic_details')
-      .populate('address')
-      .select('-password');
-    res.status(200).json(students);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+//create student
+const createStudent = async (_student) => {
 
-// READ single student by ID
-exports.getStudentById = async (req, res) => {
-  try {
-    const student = await Student.findById(req.params.id)
-      .populate('academic_details')
-      .populate('address');
-    if (!student) return res.status(404).json({ error: 'Student not found' });
-    res.status(200).json(student);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+ //academic details 
+let res = await AcedemeicDetailsController.addAcademicDetails(_student.academic_details);
+if(res.status === 200){
+    _student.academic_details = res.data.academicDetails._id;
+}
 
-// UPDATE student by ID
-exports.updateStudent = async (req, res) => {
-  try {
-    const updatedStudent = await Student.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!updatedStudent) return res.status(404).json({ error: 'Student not found' });
-    res.status(200).json(updatedStudent);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
+//address
+res = await addressController.createAddress(_student.address);
+if(res.status === 200){
+    _student.address = res.data.address._id;
+}
 
-// DELETE student by ID
-exports.deleteStudent = async (req, res) => {
-  try {
-    const deletedStudent = await Student.findByIdAndDelete(req.params.id);
-    if (!deletedStudent) return res.status(404).json({ error: 'Student not found' });
-    res.status(200).json({ message: 'Student deleted successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+const {error} = studentJoiSchema.validate(_student);
+if(error){
+    throw new ApiError(400, 'Invalid schema of student', error.details[0].message);
+}
+
+const newStudent = new Student(_student);
+await newStudent.save();
+return new ApiSuccess(200, 'Student created successfully', {student: newStudent});
+
+}
+
+
+//retrive student
+
+const retriveStudent = async (_id) =>
+{
+  const rStudent = await Student.findById(_id).populate('academic_details').populate('address');
+  if(!rStudent){
+      throw new ApiError(400, 'Student not found', 'Invalid ID');
   }
-};
+  return new ApiSuccess(200, 'Student retrived successfully', {student: rStudent});
+}
+  
+  
+  
+  
+//update student
+
+const updateStudent = async (_student) => 
+{
+  const {error} = studentJoiSchema.validate(_student);
+  if(error){
+      throw new ApiError(400, 'Invalid schema for update', error.details[0].message);
+  }
+const updatedStudent = Student.findByIdAndUpdate(_student._id,_student,{new:true});
+if(!updatedStudent){
+    throw new ApiError(400, 'Student not found', 'Invalid ID'); 
+}
+  return new ApiSuccess(200, 'Student updated successfully', {student: updatedStudent});
+}
+
+
+
+//delete student
+const deleteStudent = async(_id) => {
+    const deletedStudent = await Student.findByIdAndDelete(_id);
+    if(!deletedStudent){
+        throw new ApiError(400, 'Student not found', 'Invalid ID');
+    }
+    return new ApiSuccess(200, 'Student deleted successfully', {student: deletedStudent});  
+}
+
+module.exports = {createStudent,retriveStudent,updateStudent,deleteStudent}
