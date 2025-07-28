@@ -2,6 +2,11 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const generateHash = require('../utils/generateHash.util');
+const Joi = require('joi');
+const bcrypt = require('bcryptjs');
+const {addressJoiSchema} = require('./Address.model');
+const {embeddedAcademicDetailsJoiSchema} = require('./AcademicDetails.model');
+const ApiError = require('../utils/response/ApiError.util');
 
 const studentSchema = new Schema({
   name: {
@@ -58,17 +63,28 @@ const studentSchema = new Schema({
 
 studentSchema.index({ enrollment_no: 1, email: 1 }, { unique: true });
 
-studentSchema.pre('save', function(next) {
-  if (this.isModified('password')) {
-    generateHash(this.password)
-      .then(hashedPassword => {
+studentSchema.pre('save', async function (next) {
+    try {
+      if (this.isModified('password')) {
+        const hashedPassword = await generateHash(this.password);
         this.password = hashedPassword;
-        next();
-      })
-      .catch(err => {
-        next(new Error('Error hashing password: ' + err.message));
-      });
-  }
+      }
+      next();
+    } catch (err) {
+      next(new ApiError('Error hashing password: ' + err.message));
+    }
+});
+
+//auto populate
+studentSchema.pre(/^find/, function (next) {
+  this.populate({
+      path: 'academic_details',
+      populate :{
+          path: 'result',
+      }
+  }). populate({
+      path: 'address'
+  }).select('-password');
   next();
 });
 
@@ -107,4 +123,56 @@ studentSchema.methods.generateRefreshToken = function() {
 
 const Student = mongoose.model('Student', studentSchema);
 
-module.exports = Student;
+
+//joi schema
+  const ObjectId = Joi.string().hex().length(24);
+
+  const studentJoiSchema = Joi.object({
+    _id: ObjectId.optional(),
+    name: Joi.string().required(),
+    enrollment_no: Joi.string().required(),
+    dob: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    contact: Joi.string()
+      .pattern(/^[0-9]{10}$/) // Optional: Restrict to 10-digit numbers
+      .required(),
+    gender: Joi.string()
+      .valid('Male', 'Female', 'Other')
+      .required(),
+    caste: Joi.string()
+      .valid('General', 'OBC', 'SC', 'ST', 'SEBC')
+      .optional(),
+    academic_details: ObjectId.required(),
+    address: ObjectId.required(),
+    refresh_token: Joi.string().allow(null).optional(),
+    createdAt: Joi.date().optional(),
+    updatedAt: Joi.date().optional()
+  });
+
+
+const embeddedStudentJoiSchema = Joi.object({
+  _id: ObjectId.optional(),
+  name: Joi.string().required(),
+  enrollment_no: Joi.string().required(),
+  dob: Joi.string().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
+  contact: Joi.string()
+    .pattern(/^[0-9]{10}$/) // Optional: Restrict to 10-digit numbers
+    .required(),
+  gender: Joi.string()
+    .valid('Male', 'Female', 'Other')
+    .required(),
+  caste: Joi.string()
+    .valid('General', 'OBC', 'SC', 'ST', 'SEBC')
+    .optional(),
+  academic_details: embeddedAcademicDetailsJoiSchema.optional(),
+  address: addressJoiSchema.optional(),
+  refresh_token: Joi.string().allow(null).optional(),
+  createdAt: Joi.date().optional(),
+  updatedAt: Joi.date().optional()
+});
+
+
+module.exports = {Student, studentJoiSchema, embeddedStudentJoiSchema};

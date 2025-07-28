@@ -37,7 +37,6 @@ const retriveCriteria = async (_id) => {
     return new ApiSuccess(200, 'Creiteria retrived successfully', {criteria: criteria});
 }
 
-
 //update Criteria
 const updateCriteria = async (_criteria) => {
 

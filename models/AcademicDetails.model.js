@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Joi = require('joi');
+const {academicResultJoiSchema} = require('./AcademicResult.model');
 
 const academicDetailsSchema = new Schema({
     result: {
@@ -58,5 +59,26 @@ const academicDetailsJoiSchema = Joi.object({
     updatedAt: Joi.date().optional()
 });
 
+const embeddedAcademicDetailsJoiSchema = Joi.object({
+     _id: objectId.optional(),
+    result: academicResultJoiSchema.required(),
 
-module.exports = {AcademicDetails, academicDetailsJoiSchema };
+    applied: Joi.array().items(
+        Joi.object({
+        offer: objectId.required()
+        })
+    ).optional().default([]),
+
+    selected: Joi.object({
+        offer: objectId.required(),
+        salary: Joi.number().optional()
+    }).optional().default({}),
+
+    passout_year: Joi.number().required(),
+
+    createdAt: Joi.date().optional(),
+    updatedAt: Joi.date().optional()
+});
+
+
+module.exports = {AcademicDetails, academicDetailsJoiSchema, embeddedAcademicDetailsJoiSchema };

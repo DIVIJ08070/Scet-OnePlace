@@ -12,7 +12,7 @@ const createOffer = async (_offer) => {
     //location
     let res = await addressController.createAddress(_offer.location);
 
-    if(res === 200){
+    if(res.status === 200){
         _offer.location = res.data.address._id;
     }
 
