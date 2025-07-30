@@ -56,16 +56,16 @@ const retriveAllStudents = async () => {
 
 //retrive student
 const retriveStudent = async (_id) => {
-
-    console.log(_id);
         
-        const student = await Student.findById(_id);
+    const student = await Student.findById(_id);
 
-        if(!student){
-            throw new ApiError(400, 'student not found', 'invalid Id');
-        }
+    if(!student){
+        throw new ApiError(400, 'student not found', 'invalid Id');
+    }
 
-        return new ApiSuccess(200, 'student Retrived Successfully', {student: student});
+    return new ApiSuccess(200, 'student Retrived Successfully', {student: student});
+
+        
 }
 
 const updateStudent = async (_id, _studentData) => {
@@ -77,19 +77,18 @@ const updateStudent = async (_id, _studentData) => {
     }
 
     //validate student
-    const student = await retriveStudent(_studentData._id);
-
+    const studentRes = await retriveStudent(_id);
 
     //add academic details if provided
     const academic_details = _studentData.academic_details;
-    const academicDetailsRes = await academiDetailsService.updateAcademicDetails(student.academic_details._id, academic_details);
+    const academicDetailsRes = await academiDetailsService.updateAcademicDetails(studentRes.data.student.academic_details._id, academic_details);
     if (academicDetailsRes.statusCode === 200) {
         _studentData.academic_details = academicDetailsRes.data.academicDetails._id.toString();
     }
 
     //add address if provided
     const address = _studentData.address;
-    const addressRes = await addressService.updateAddress(address);
+    const addressRes = await addressService.updateAddress(studentRes.data.student.address._id, address);
     if (addressRes.statusCode === 200) {
         _studentData.address = addressRes.data.address._id.toString();
     }
@@ -102,7 +101,7 @@ const updateStudent = async (_id, _studentData) => {
     }
 
     // Create a new student instance
-    const updatedStudent = await Student.findByIdAndUpdate(_studentData._id, _studentData, {new:true});
+    const updatedStudent = await Student.findByIdAndUpdate(_id, _studentData, {new:true});
 
     // Return success response
     return new ApiSuccess(200, 'New Student Added Successfully', { student: updatedStudent });

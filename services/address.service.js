@@ -27,7 +27,7 @@ const retriveAddress = async (_id) => {
     const address = await Address.findById(_id);
 
     //validate
-    if(!address || typeof address !== 'null'){
+    if(!address || typeof address === 'null'){
         throw new ApiError(400, 'Address not found', 'Address id is invalid'); 
     }
 

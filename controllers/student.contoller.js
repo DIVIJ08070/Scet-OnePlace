@@ -1,74 +1,83 @@
-const {Student, studentJoiSchema} = require('./Student.model');
+const {Student, studentJoiSchema} = require('../models/Student.model');
 const ApiError = require('../utils/response/ApiError.util');
 const ApiSuccess = require('../utils/response/ApiSuccess.util');
-const AcedemeicDetailsController = require('./academicDetails.controller');
+const studentService = require('../services/student.service');
+// const AcedemeicDetailsController = require('./academicDetails.controller');
 
+//add new student
+const addNewStudent = async (req, res) => {
 
-//create student
-const createStudent = async (_student) => {
+    //retrive data
+    const studentData = req.body;
 
- //academic details 
-let res = await AcedemeicDetailsController.addAcademicDetails(_student.academic_details);
-if(res.status === 200){
-    _student.academic_details = res.data.academicDetails._id;
-}
+    //call service
+    let studentRes = await studentService.addNewStudent(studentData); 
 
-//address
-res = await addressController.createAddress(_student.address);
-if(res.status === 200){
-    _student.address = res.data.address._id;
-}
-
-const {error} = studentJoiSchema.validate(_student);
-if(error){
-    throw new ApiError(400, 'Invalid schema of student', error.details[0].message);
-}
-
-const newStudent = new Student(_student);
-await newStudent.save();
-return new ApiSuccess(200, 'Student created successfully', {student: newStudent});
-
-}
-
-
-//retrive student
-
-const retriveStudent = async (_id) =>
-{
-  const rStudent = await Student.findById(_id).populate('academic_details').populate('address');
-  if(!rStudent){
-      throw new ApiError(400, 'Student not found', 'Invalid ID');
-  }
-  return new ApiSuccess(200, 'Student retrived successfully', {student: rStudent});
-}
-  
-  
-  
-  
-//update student
-
-const updateStudent = async (_student) => 
-{
-  const {error} = studentJoiSchema.validate(_student);
-  if(error){
-      throw new ApiError(400, 'Invalid schema for update', error.details[0].message);
-  }
-const updatedStudent = Student.findByIdAndUpdate(_student._id,_student,{new:true});
-if(!updatedStudent){
-    throw new ApiError(400, 'Student not found', 'Invalid ID'); 
-}
-  return new ApiSuccess(200, 'Student updated successfully', {student: updatedStudent});
-}
-
-
-
-//delete student
-const deleteStudent = async(_id) => {
-    const deletedStudent = await Student.findByIdAndDelete(_id);
-    if(!deletedStudent){
-        throw new ApiError(400, 'Student not found', 'Invalid ID');
+    if(studentRes.statusCode !== 200){
+        throw new ApiError(400, 'Student addtion failed',studentRes.errors);
     }
-    return new ApiSuccess(200, 'Student deleted successfully', {student: deletedStudent});  
+
+    //retrive data
+    studentRes = await studentService.retriveStudent(studentRes.data.student._id);
+
+    if(studentRes.statusCode !== 200){
+        throw new ApiError(400, 'Student addtion failed',studentRes.errors);
+    }
+
+    //send res
+    return res.status(200).json(new ApiSuccess(200, 'Student Added Successfully', {student:studentRes.data.student}));
 }
 
-module.exports = {createStudent,retriveStudent,updateStudent,deleteStudent}
+//retrive all students
+const retriveAllStudents = async (req, res) => {
+
+    //call service
+    const studentRes = await studentService.retriveAllStudents();
+
+    if(studentRes.statusCode !== 200){
+        throw new ApiError(400, 'Retrive student Failed', studentRes.errors);
+    }
+
+    //return
+    return res.status(200).json(new ApiSuccess(200, 'Students data retrived successfully', {student:studentRes.data.student}));
+}
+
+//retrive student by id
+const retriveStudentById = async (req, res) => {
+
+    const {studentId} = req.params;
+   
+    const studentRes = await studentService.retriveStudent(studentId);
+
+    return res.status(studentRes.statusCode).json(studentRes);
+}
+
+//update student
+const updateStudent = async (req, res) => {
+
+    //retrive data
+    const {studentId} = req.params;
+    const studentData = req.body;
+
+    //call service
+    let studentRes = await studentService.updateStudent(studentId,studentData); 
+
+    if(studentRes.statusCode !== 200){
+        throw new ApiError(400, 'Student update failed',studentRes.errors);
+    }
+
+
+    //retrive data
+    studentRes = await studentService.retriveStudent(studentRes.data.student._id);
+
+    if(studentRes.statusCode !== 200){
+        throw new ApiError(400, 'Student addtion failed',studentRes.errors);
+    }
+
+    //send res
+    return res.status(200).json(new ApiSuccess(200, 'Student Added Successfully', {student:studentRes.data.student}));
+}
+
+
+
+module.exports = {addNewStudent, retriveAllStudents, updateStudent, retriveStudentById}
