@@ -1,107 +1,17 @@
-const {Company, companyJoiSchema} = require('../models/Company.model');
-const ApiError = require('../utils/response/ApiError.util');
+const compnayService = require('../services/company.service');
 const ApiSuccess = require('../utils/response/ApiSuccess.util');
-const addressController = require('../controllers/address.controller');
 
-// add new compnay
-const createCompany = async (_company) => {
+//add new comapany
+const addCompany = async (req, res) => {
 
-    //addAddress
-    const res = await addressController.createAddress(_company.address);
+    console.log(req.body);
 
-    if(res.status === 200){
-        _company.address = res.data.address._id;
-    } else {
-        return res;
-    }
-    
-    //validate schema of data
-    const {error} = companyJoiSchema.validate(_company);
+    const companyData = req.body;
+    let compnayRes = await compnayService.createCompany(companyData);
 
-    if(error){
-        throw new ApiError(400, 'Inavaild data of Compnay', error.details[0].message);
-    }
+    compnayRes = await compnayService.retriveCompnay(compnayRes.data.company._id);
 
-    //create instance
-    const newCompnay = new Company(_company);
-
-    //save data
-    await newCompnay.save();
-
-    //return res
-    return new ApiSuccess(200, 'new company added successfully',{company: newCompnay});
-
+    return res.status(200).json(new ApiSuccess(200, 'Compnay Added Successfully'), {company: compnayRes.data.company});
 }
 
-//retrive all company
-const retriveAllCompany = async () => {
-
-    //retrive data
-    const compnaies = await Company.find().populate('offers').populate('address');
-
-    //send res
-    return new ApiSuccess(200, 'All Company retrived', {company:compnaies});
-}
-
-//retrive compnay by Id
-const retriveCompnay = async (_id) => {
-
-    //retrive data
-    const company = await Company.findById(_id).populate('offers').populate('address');
-
-    //validate data
-    if(!company){
-        throw new ApiError(400, 'Invalid ID', 'Compnay not registered');
-    }
-
-    //return response
-    return new ApiSuccess(200, 'Comapnay retrived successfully', {company:company});
-}
-
-//update comapny
-const updateCompany = async (_company) => {
-
-    //update address
-    const res = await addressController.updateAddress(_company.address);
-
-    if(res.status === 200){
-        _company.address = res.data.address._id;
-    } else {
-        return res;
-    }
-    
-
-    //validate schema of data
-    const {error} = companyJoiSchema.validate(_company);
-
-    if(error){
-        throw new ApiError(400, 'Inavaild data of Compnay', error.details[0].message);
-    }
-
-    //retrive & update data
-    const updatedCompany = await Company.findByIdAndUpdate(_company._id, _company, { new: true });
-
-    //validate data
-    if(!updatedCompany){
-        throw new ApiError(400, 'Company not found', 'INvalid ID');
-    }
-
-    //return res
-    return new ApiSuccess(200, 'Company Updated Successfully', {company: updatedCompany});
-}
-
-//delete Compnay
-const deleteCompany = async (_id) => {
-    //delete all the offer of company
-    //delete adddress
-
-    const deletedCompany = await Company.findByIdAndDelete(_id);
-
-    if(!deletedCompany){
-        throw new ApiError(400, 'Compnay not found', 'Invalid Id');
-    }
-
-    return new ApiSuccess(200, 'Company deleted Successfully', {company: deletedCompany});
-}
-
-module.exports = {createCompany, retriveAllCompany, retriveCompnay, updateCompany, deleteCompany};
+module.exports = {addCompany};
