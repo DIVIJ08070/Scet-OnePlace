@@ -75,7 +75,7 @@ const updateStudent = async (req, res) => {
     }
 
     //send res
-    return res.status(200).json(new ApiSuccess(200, 'Student Added Successfully', {student:studentRes.data.student}));
+    return res.status(200).json(new ApiSuccess(200, 'Student updated Successfully', {student:studentRes.data.student}));
 }
 
 

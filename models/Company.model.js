@@ -46,8 +46,8 @@ const companyJoiSchema = Joi.object({
 
         _id: objectId.optional(),
         name: Joi.string().required(),
-        logo: Joi.string().uri().required(), // Assuming logo is a URL
-        link: Joi.string().uri().required(), // Assuming link is a URL
+        logo: Joi.string().required(), // Assuming logo is a URL
+        link: Joi.string().required(), // Assuming link is a URL
         description: Joi.string().required(),
         contact: Joi.string().required(), // Can add phone/email regex if needed
         address: objectId.required(),

@@ -1,21 +1,21 @@
 const {Company, companyJoiSchema} = require('../models/Company.model');
 const ApiError = require('../utils/response/ApiError.util');
 const ApiSuccess = require('../utils/response/ApiSuccess.util');
-const addressController = require('../controllers/address.controller');
+const addressService = require('../services/address.service');
+const {Offer} = require('../models/Offer.model');
 
 // add new compnay
 const createCompany = async (_company) => {
 
     //addAddress
-    console.log(_company);
-    const res = await addressController.createAddress(_company.address);
+    const res = await addressService.createAddress(_company.address);
 
-    if(res.status === 200){
-        _company.address = res.data.address._id;
-    } else {
-        return res;
+    if(res.statusCode === 200){
+        _company.address = res.data.address._id.toString();
     }
     
+    //upload logo
+
     //validate schema of data
     const {error} = companyJoiSchema.validate(_company);
 
@@ -60,17 +60,16 @@ const retriveCompnay = async (_id) => {
 }
 
 //update comapny
-const updateCompany = async (_company) => {
+const updateCompany = async (_id,_company) => {
+
+    const companyRes = await retriveCompnay(_id);
 
     //update address
-    const res = await addressController.updateAddress(_company.address);
+    const res = await addressService.updateAddress(companyRes.data.company.address._id,_company.address);
 
-    if(res.status === 200){
-        _company.address = res.data.address._id;
-    } else {
-        return res;
+    if(res.statusCode === 200){
+        _company.address = res.data.address._id.toString();
     }
-    
 
     //validate schema of data
     const {error} = companyJoiSchema.validate(_company);
@@ -80,7 +79,7 @@ const updateCompany = async (_company) => {
     }
 
     //retrive & update data
-    const updatedCompany = await Company.findByIdAndUpdate(_company._id, _company, { new: true });
+    const updatedCompany = await Company.findByIdAndUpdate(_id, _company, { new: true });
 
     //validate data
     if(!updatedCompany){

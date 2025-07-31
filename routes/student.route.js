@@ -7,4 +7,4 @@ router.get('/', studentController.retriveAllStudents);
 router.get('/:studentId',studentController.retriveStudentById);
 router.patch('/:studentId',studentController.updateStudent);
 
-module.exports = router;
+module.exports = router;    

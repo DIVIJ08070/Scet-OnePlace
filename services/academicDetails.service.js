@@ -75,7 +75,6 @@ const updateAcademicDetails = async (_id,_academicDetails) => {
     //update result
     const res = await AcademicResultService.updateAcademicResult(academic_details.data.academicDetails.result._id, _academicDetails.result);
     if(res.statusCode === 200){
-        console.log(res.data.academicResult);
         _academicDetails.result = res.data.academicResult._id.toString();
     }
 

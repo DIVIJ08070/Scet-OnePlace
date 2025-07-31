@@ -19,7 +19,7 @@ const addCriteria = async (_criteria) => {
     await newCriteria.save();
 
     //return res
-    return ApiSuccess(200, 'New Acriteria added sucessfully', {criteria: newCriteria});
+    return new ApiSuccess(200, 'New Acriteria added sucessfully', {criteria: newCriteria});
 }
 
 //retrive criteria
@@ -38,7 +38,7 @@ const retriveCriteria = async (_id) => {
 }
 
 //update Criteria
-const updateCriteria = async (_criteria) => {
+const updateCriteria = async (_id,_criteria) => {
 
     //validate schema
     const {error} = criteriaJoiSchema.validate(_criteria);
@@ -48,14 +48,14 @@ const updateCriteria = async (_criteria) => {
     }
 
     //retrive & update instance
-    const updatedCriteria = await Criteria.findByIdAndUpdate(_criteria._id, _criteria, {new: true});
+    const updatedCriteria = await Criteria.findByIdAndUpdate(_id, _criteria, {new: true});
 
     if(!updatedCriteria){
         throw new ApiError(400, 'Invalid criteria id', 'Criteria not found');
     }
 
     //return res
-    return ApiSuccess(200, 'New Acriteria added sucessfully', {criteria: updatedCriteria});
+    return new ApiSuccess(200, 'New Acriteria added sucessfully', {criteria: updatedCriteria});
 }
 
 //delete criteria
@@ -70,4 +70,4 @@ const deleteCriteria = async (_id) => {
     return new ApiSuccess(200, 'criteria deleted sucesfully' , {criteria: deletedCriteria});
 }
 
-module.export = {addCriteria, retriveCriteria, updateCriteria, deleteCriteria};
+module.exports = {addCriteria, retriveCriteria, updateCriteria, deleteCriteria};

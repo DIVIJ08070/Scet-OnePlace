@@ -1,76 +1,51 @@
-const {Offer,offerJoiSchema} = require('../models/Offer.model');
+const offerService = require('../services/offer.service');
 const ApiError = require('../utils/response/ApiError.util');
 const ApiSuccess = require('../utils/response/ApiSuccess.util');
-const addressController = require('./address.controller');
-const criteriaContoller = require('./criteria.controller');
-const resultController = require('./')
 
-//Create new offer
-const createOffer = async (_offer) => {
+//add new offer
+const addOffer = async (req, res) => {  
+    const offerData = req.body;
 
-    //compnay
-    //location
-    let res = await addressController.createAddress(_offer.location);
+    let offerRes = await offerService.createOffer(offerData);
 
-    if(res.status === 200){
-        _offer.location = res.data.address._id;
-    }
+    offerRes = await offerService.retriveOffer(offerRes.data.offer._id);
 
-    //criteria
-    res = await criteriaContoller.addCriteria(_offer.criteria);
-
-    if(res === 200){
-        _offer.criteria = res.data.criteria._id;
-    }
-
-    //validate schema
-    const {error} = offerJoiSchema.validate(_offer);
-
-    if(error){
-        throw new ApiError(400, 'Invalid schema of offer', error.details[0].message);
-    }
-
-    //create instance
-    const newOffer = new Offer(_offer);
-
-    //save instance
-    await newOffer.save();
-
-    //return res
-    return new ApiSuccess(200, 'offer added successfully', {offer:newOffer});
+    return res.status(200).json(new ApiSuccess(200, "New Offer added successfully", offerRes.data));
 }
 
-//retrive offer
-const retriveOffer = async (_id) => {
-    const offer = await Offer.findById(_id).populate(criteria).populate(location).populate(compnay).populate(result);
+//retrive all offers
+const retriveAllOffrs = async (req,res) => {
 
-    if(!offer){
-        throw new ApiError(400, 'Offer not found', 'invalid ID');
-    }
+    const OfferRes = await offerService.retriveAllOffers();
 
-    return new ApiSuccess(200, 'Offer retrived Successfully', {offer});
+    return res.status(200).json(new ApiSuccess(200, "All Offers retrived successfully", OfferRes.data));
+}
+
+//retrive offer by id
+const retriveOfferById = async (req, res) => {
+
+    const {OfferId} = req.params;
+
+    const offerRes = await offerService.retriveOffer(OfferId);
+
+    return res.status(200).json(new ApiSuccess(200, "Offer retrived successfully", offerRes.data));
 }
 
 //update offer
-const updateOffer = async(_offer) => 
-{
-    const {error} = offerJoiSchema.validate(_offer);
-    if(error){
-        throw new ApiError(400,"updateOffer schema not valid",error.details[0].message)
-    }
-    const newUpdateOffer = Offer.findByIdAndUpdate(_offer._id,_offer,{new:true})
-    if(!updateOffer){
-        throw new ApiError(400,'id is  not valid','invalid id');
-    }
-    return new ApiSuccess(200,"offer updated succesfuly",{offer:newUpdateOffer})
-}
-const deletOffer = async(_id) => 
-{
-    const deletedOffer = await Offer.findByIdAndDelete(_id)
-    if(!deletedOffer){
-        throw new ApiError(400,'id is not valid','enter valid id');
-    }
-    return new ApiSuccess(200,'offer deleted succesfuly',{offer:deletedOffer})
+const updateOffer = async (req, res) => {
+    const {OfferId} = req.params;
+    const offerData = req.body;
+
+    let offerRes = await offerService.updateOffer(OfferId, offerData);
+
+    offerRes = await offerService.retriveOffer(offerRes.data.offer._id);
+
+    return res.status(200).json(new ApiSuccess(200, "Offer updated successfully", offerRes.data));
 }
 
-module.exports = {createOffer, retriveOffer, updateOffer, deletOffer};  
+module.exports = {
+    addOffer,
+    retriveAllOffrs,
+    retriveOfferById,
+    updateOffer
+}

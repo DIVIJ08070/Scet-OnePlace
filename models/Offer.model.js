@@ -52,12 +52,10 @@ const offerSchema = new Schema({
     },
     result:{
         type: Schema.Types.ObjectId,
-        ref: 'OfferResult',
-        required: true
+        ref: 'OfferResult'
     },
     skills:{
-        type: [String],
-        required: true
+        type: [String]
     }
 }, {
   timestamps: true
@@ -83,7 +81,7 @@ const offerJoiSchema = Joi.object({
     }).optional(),
     criteria: objectId.optional(),
     result: objectId.optional().default([]),
-    skills: Joi.array().items(Joi.string()).min(1).required(),
+    skills: Joi.array().items(Joi.string()).min(1).optional(),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
 });

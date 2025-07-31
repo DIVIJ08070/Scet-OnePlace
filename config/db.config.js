@@ -9,7 +9,7 @@ const connectDB = async () => {
       // useCreateIndex: true      // (optional) no longer required in mongoose ≥ 6.x
     });
     console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
+  } catch (error) { 
     console.error(`Error: ${error.message}`);
     process.exit(1); // exit process with failure
   }
