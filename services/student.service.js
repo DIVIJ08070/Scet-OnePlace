@@ -108,5 +108,41 @@ const updateStudent = async (_id, _studentData) => {
 
 };
 
+const retriveStudentByEmail = async (_email) => {
 
-module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent};
+    if(!_email){
+        throw new ApiError(400, "Empty credentials", "credentails are empty");
+    }
+
+    const student = await Student.findOne({email: _email});
+
+    if(!student){
+        throw new ApiError(400, "Invalid Email", "Student not found");
+    }
+
+    return new ApiSuccess(200, "student Retrived Successfully", {student: student});
+}
+
+const validateStudent = async (_email, _password) => {
+
+    if(!_email && !_password){
+        throw new ApiError(400, "Empty credentials", "credentails are empty");
+    }
+
+    const studentRes = await retriveStudentByEmail(_email);
+
+    const student = studentRes.data.student;
+
+    const status = await student.comparePassword(_password);
+
+    if(!status){
+        throw new ApiError(400, "Invalid credentials", "credentail is Invalid");
+    }
+
+    const tokens = await student.generateTokens();
+
+    return new ApiSuccess(200, "Student validation succesfull", {tokens: tokens});
+
+}
+
+module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent, validateStudent};

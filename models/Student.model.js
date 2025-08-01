@@ -97,7 +97,7 @@ studentSchema.methods.comparePassword = async function(plainPassword) {
     }
 };
 
-studentSchema.methods.generateAccessToken = function() {
+studentSchema.methods.generateTokens = async function() {
   const payload = {
     _id: this._id,
     email: this.email,
@@ -105,19 +105,31 @@ studentSchema.methods.generateAccessToken = function() {
     name: this.name,
   };
 
-  return jwt.sign(payload, process.env.JWT_SECRET, {
+  const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: '1d'
   });
-};
 
-studentSchema.methods.generateRefreshToken = function() {
-  const payload = {
+  const refreshToken =  jwt.sign({
     _id: this._id,
-  };
-
-  return  jwt.sign(payload, process.env.JWT_SECRET, {
+  }, process.env.JWT_SECRET, {
     expiresIn: '10d'
   });
+
+  this.refresh_token = refreshToken;
+
+  await this.save();
+
+  return {accessToken, refreshToken};
+};
+
+studentSchema.methods.refreshTokens = async function(_refreshToken) {
+
+  if(this.refresh_token !== _refreshToken){
+    throw new ApiError(400, "Invalid Credentials", "invalid refresh token");
+  }
+
+  return await this.generateTokens();
+  
 };
 
 
