@@ -4,6 +4,7 @@ const addressService = require('../services/address.service');
 const ApiSuccess = require('../utils/response/ApiSuccess.util');
 const ApiError = require('../utils/response/ApiError.util');
 
+
 // CREATE a new student
 const addNewStudent = async (_studentData) => {
 
@@ -129,6 +130,9 @@ const validateStudent = async (_email, _password) => {
         throw new ApiError(400, "Empty credentials", "credentails are empty");
     }
 
+    console.log(_email,_password);
+
+
     const studentRes = await retriveStudentByEmail(_email);
 
     const student = studentRes.data.student;
@@ -145,4 +149,21 @@ const validateStudent = async (_email, _password) => {
 
 }
 
-module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent, validateStudent};
+const removeToken = async (_id) => {
+
+    const studentRes = await retriveStudent(_id);
+
+    let student = studentRes.data.student;
+    
+    student = await student.removeToken();
+
+    return new ApiSuccess(200, 'Token removed successfully', {student: student});
+}
+
+const refreshTokens = async (_refreshToken, _student) => {
+
+    const tokens = await _student.refreshTokens(_refreshToken);
+
+    return new ApiSuccess(200, 'Tokens refreshed successfully', {tokens: tokens});
+}
+module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent, validateStudent, removeToken, refreshTokens};

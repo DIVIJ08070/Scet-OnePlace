@@ -5,7 +5,7 @@ const companyRouter = require('./routes/company.route');
 const offerRouter = require('./routes/offer.route');
 const authRouter = require('./routes/auth.route');
 
-const BASE_REQUEST = 'api/v1';
+const BASE_REQUEST = '/api/v1';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

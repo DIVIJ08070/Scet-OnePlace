@@ -84,12 +84,14 @@ studentSchema.pre(/^find/, function (next) {
       }
   }). populate({
       path: 'address'
-  }).select('-password');
+  // }).select('-password');
+  });
   next();
 });
 
 studentSchema.methods.comparePassword = async function(plainPassword) {
     try {
+      console.log(plainPassword, this.password);
         const isMatch = await bcrypt.compare(plainPassword, this.password);
         return isMatch;
         } catch (err) {
@@ -131,6 +133,15 @@ studentSchema.methods.refreshTokens = async function(_refreshToken) {
   return await this.generateTokens();
   
 };
+
+studentSchema.methods.removeToken = async function () {
+
+  this.refresh_token = null;
+  await this.save();
+
+  return this;
+
+}
 
 
 const Student = mongoose.model('Student', studentSchema);

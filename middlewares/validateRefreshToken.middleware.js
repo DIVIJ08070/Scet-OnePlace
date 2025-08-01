@@ -1,12 +1,11 @@
 const jwt = require('jsonwebtoken');
 const studentService = require('../services/student.service');
 
-const authenticateUser = async (req, res, next) => {
+const verifyRefreshToken = async (req, res, next) => {
 
+    const {refreshToken} = req.body;
 
-    const token = req.headers['authorization'].split(' ')[1];
-
-    const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedPayload = jwt.verify(refreshToken,process.env.JWT_SECRET);
 
     const studentRes = await studentService.retriveStudent(decodedPayload._id);
 
@@ -15,4 +14,4 @@ const authenticateUser = async (req, res, next) => {
     next();
 }
 
-module.exports = authenticateUser;
+module.exports = verifyRefreshToken;
