@@ -27,7 +27,7 @@ const studentSchema = new Schema({
     unique: true,
     required: true
   },
-  password: {
+  googleId: {
     type: String,
     required: true
   },
@@ -65,13 +65,14 @@ studentSchema.index({ enrollment_no: 1, email: 1 }, { unique: true });
 
 studentSchema.pre('save', async function (next) {
     try {
-      if (this.isModified('password')) {
-        const hashedPassword = await generateHash(this.password);
-        this.password = hashedPassword;
+      if (this.isModified('googleId')) {
+        console.log('Hashing googleId...');
+        const hashedGoogleId = await generateHash(this.googleId);
+        this.googleId = hashedGoogleId;
       }
       next();
     } catch (err) {
-      next(new ApiError('Error hashing password: ' + err.message));
+      next(new ApiError('Error hashing googleId: ' + err.message));
     }
 });
 
@@ -84,18 +85,18 @@ studentSchema.pre(/^find/, function (next) {
       }
   }). populate({
       path: 'address'
-  // }).select('-password');
+  // }).select('-googleId');
   });
   next();
 });
 
-studentSchema.methods.comparePassword = async function(plainPassword) {
+studentSchema.methods.compareGoogleId = async function(plainGoogleId) {
     try {
-      console.log(plainPassword, this.password);
-        const isMatch = await bcrypt.compare(plainPassword, this.password);
+      console.log(plainGoogleId, this.googleId);
+        const isMatch = await bcrypt.compare(plainGoogleId, this.googleId);
         return isMatch;
         } catch (err) {
-        throw new Error('Password comparison failed: ' + err.message);
+        throw new Error('GoogleId comparison failed: ' + err.message);
     }
 };
 
@@ -156,7 +157,7 @@ const Student = mongoose.model('Student', studentSchema);
     enrollment_no: Joi.string().required(),
     dob: Joi.string().required(),
     email: Joi.string().email().required(),
-    password: Joi.string().required(),
+    googleId: Joi.string().required(),
     contact: Joi.string()
       .pattern(/^[0-9]{10}$/) // Optional: Restrict to 10-digit numbers
       .required(),
@@ -180,7 +181,7 @@ const embeddedStudentJoiSchema = Joi.object({
   enrollment_no: Joi.string().required(),
   dob: Joi.string().required(),
   email: Joi.string().email().required(),
-  password: Joi.string().required(),
+  googleId: Joi.string().required(),
   contact: Joi.string()
     .pattern(/^[0-9]{10}$/) // Optional: Restrict to 10-digit numbers
     .required(),

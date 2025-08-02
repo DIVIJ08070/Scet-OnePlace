@@ -4,9 +4,9 @@ const ApiError = require('../utils/response/ApiError.util');
 
 const login = async (req, res) => {
 
-    const {email, password} = req.body;
+    const {googleId} = req.body;
 
-    const ValidationRes = await studentService.validateStudent(email, password);
+    const ValidationRes = await studentService.validateStudent(googleId);
 
     return res.status(200).json(new ApiSuccess(200, "Login Successfull.", ValidationRes.data));
 }
@@ -15,7 +15,7 @@ const logout = async (req, res) => {
 
     const user = req.user;
 
-    const studentRes = await studentService.removeToken(user._id);
+    await studentService.removeToken(user._id);
 
     return res.status(200).json(new ApiSuccess(200, 'User loged out successfully', {}));
 }

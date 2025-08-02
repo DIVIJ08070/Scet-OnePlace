@@ -3,6 +3,7 @@ const academiDetailsService = require('../services/academicDetails.service');
 const addressService = require('../services/address.service');
 const ApiSuccess = require('../utils/response/ApiSuccess.util');
 const ApiError = require('../utils/response/ApiError.util');
+const {verifyGoogleToken} = require('../utils/authentication/verifyLoginToken.auth');
 
 
 // CREATE a new student
@@ -28,6 +29,16 @@ const addNewStudent = async (_studentData) => {
     if (addressRes.statusCode === 200) {
         _studentData.address = addressRes.data.address._id.toString();
     }
+
+    // validate idToken
+    const idToken = _studentData.googleId;
+    if (!idToken) {
+        throw new ApiError(400, 'Google ID token is required', 'googleId is missing');
+    }
+    const payloadRes = await verifyGoogleToken(idToken);
+    googleId = payloadRes.data.payload.sub;
+    console.log(googleId);
+
 
     // Validate student data using Joi schema
     const { error } = studentJoiSchema.validate(_studentData);
@@ -94,6 +105,15 @@ const updateStudent = async (_id, _studentData) => {
         _studentData.address = addressRes.data.address._id.toString();
     }
 
+    // validate idToken
+    const idToken = _studentData.googleId;
+    if (!idToken) {
+        throw new ApiError(400, 'Google ID token is required', 'googleId is missing');
+    }
+    const payloadRes = await verifyGoogleToken(idToken);
+    _studentData.googleId = payloadRes.data.payload.sub;
+
+
     // Validate student data using Joi schema
     const { error } = studentJoiSchema.validate(_studentData);
     if (error) {
@@ -124,30 +144,50 @@ const retriveStudentByEmail = async (_email) => {
     return new ApiSuccess(200, "student Retrived Successfully", {student: student});
 }
 
-const validateStudent = async (_email, _password) => {
+const validateStudent = async (_idToken) => {
 
-    if(!_email && !_password){
-        throw new ApiError(400, "Empty credentials", "credentails are empty");
-    }
+    const payloadRes = await verifyGoogleToken(_idToken);  
 
-    console.log(_email,_password);
+    const googleId = payloadRes.data.payload.sub;
+    const email = payloadRes.data.payload.email;
 
 
-    const studentRes = await retriveStudentByEmail(_email);
-
+    const studentRes = await retriveStudentByEmail(email);
     const student = studentRes.data.student;
 
-    const status = await student.comparePassword(_password);
-
-    if(!status){
-        throw new ApiError(400, "Invalid credentials", "credentail is Invalid");
+    const isMatch = await student.compareGoogleId(googleId);
+    if(!isMatch){
+        throw new ApiError(400, "Invalid credentials", "GoogleId is Invalid");
     }
 
     const tokens = await student.generateTokens();
-
-    return new ApiSuccess(200, "Student validation succesfull", {tokens: tokens});
-
+    return new ApiSuccess(200, "Student validation successful", {tokens: tokens});
 }
+
+// const validateStudent = async (_email, _idToken) => {
+
+//     if(!_email && !_password){
+//         throw new ApiError(400, "Empty credentials", "credentails are empty");
+//     }
+
+//     console.log(_email,_password);
+
+
+//     const studentRes = await retriveStudentByEmail(_email);
+
+//     const student = studentRes.data.student;
+
+//     const status = await student.comparePassword(_password);
+
+//     if(!status){
+//         throw new ApiError(400, "Invalid credentials", "credentail is Invalid");
+//     }
+
+//     const tokens = await student.generateTokens();
+
+//     return new ApiSuccess(200, "Student validation succesfull", {tokens: tokens});
+
+// }
 
 const removeToken = async (_id) => {
 
