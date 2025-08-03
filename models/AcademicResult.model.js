@@ -87,6 +87,10 @@ const academicResultSchema = new Schema({
             },
             completion_year: {
                 type: Number,
+            },
+            backlogs: {
+                type: Number,
+                default: 0
             }
         }}
 },{
@@ -135,7 +139,8 @@ const academicResultJoiSchema = Joi.object({
         sem7: Joi.number().optional(),
         sem8: Joi.number().optional(),
         }).optional(),
-        completion_year: Joi.number().optional()
+        completion_year: Joi.number().optional(),
+        backlogs: Joi.number().default(0),
     }).optional(),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
