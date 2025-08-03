@@ -66,7 +66,6 @@ studentSchema.index({ enrollment_no: 1, email: 1 }, { unique: true });
 studentSchema.pre('save', async function (next) {
     try {
       if (this.isModified('googleId')) {
-        console.log('Hashing googleId...');
         const hashedGoogleId = await generateHash(this.googleId);
         this.googleId = hashedGoogleId;
       }
@@ -75,6 +74,34 @@ studentSchema.pre('save', async function (next) {
       next(new ApiError('Error hashing googleId: ' + err.message));
     }
 });
+
+// Shared update hook
+async function hashGoogleIdInUpdate(next) {
+  try {
+    const update = this.getUpdate?.(); // for updateOne, updateMany, etc.
+
+    // Check if googleId is present directly or in $set
+    const googleId = update?.googleId || update?.$set?.googleId;
+    if (googleId) {
+      const hashed = await generateHash(googleId);
+      if (update.googleId) {
+        update.googleId = hashed;
+      } else if (update.$set?.googleId) {
+        update.$set.googleId = hashed;
+      }
+      this.setUpdate(update); // apply changes back
+    }
+    next();
+  } catch (err) {
+    next(new ApiError('Error hashing googleId (update): ' + err.message));
+  }
+}
+
+// Apply to all query-based update operations
+studentSchema.pre('update', hashGoogleIdInUpdate);
+studentSchema.pre('updateOne', hashGoogleIdInUpdate);
+studentSchema.pre('updateMany', hashGoogleIdInUpdate);
+studentSchema.pre('findOneAndUpdate', hashGoogleIdInUpdate);
 
 //auto populate
 studentSchema.pre(/^find/, function (next) {
