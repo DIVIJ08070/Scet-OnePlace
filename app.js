@@ -1,3 +1,4 @@
+const cors = require('cors')
 const express = require('express');
 const app = express();
 const studentRouter = require('./routes/student.route');
@@ -9,6 +10,7 @@ const BASE_REQUEST = '/api/v1';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 app.use(`${BASE_REQUEST}/student`,studentRouter);
 app.use(`${BASE_REQUEST}/company`,companyRouter);
