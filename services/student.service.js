@@ -12,6 +12,7 @@ const addNewStudent = async (_studentData) => {
     //validate embedded student schema
     const { error:embeddedError } = embeddedStudentJoiSchema.validate(_studentData);
     if (embeddedError) {
+        console.log(embeddedError);
         throw new ApiError(400, 'Invalid student data', embeddedError.details[0].message);
     }
 
