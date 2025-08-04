@@ -119,7 +119,6 @@ studentSchema.pre(/^find/, function (next) {
 
 studentSchema.methods.compareGoogleId = async function(plainGoogleId) {
     try {
-      console.log(plainGoogleId, this.googleId);
         const isMatch = await bcrypt.compare(plainGoogleId, this.googleId);
         return isMatch;
         } catch (err) {

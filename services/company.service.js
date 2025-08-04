@@ -104,4 +104,22 @@ const deleteCompany = async (_id) => {
     return new ApiSuccess(200, 'Company deleted Successfully', {company: deletedCompany});
 }
 
-module.exports = {createCompany, retriveAllCompany, retriveCompnay, updateCompany, deleteCompany};
+//add offer
+const addOfferInCompany = async (_offerId, _companyId) => {
+
+    if(_offerId, _companyId){
+        throw new ApiError(400, "can't add offer");
+    }
+
+    const companyRes = await retriveCompnay(_companyId);
+
+    const company = companyRes.data.company;
+
+    company.offers.push_back(_offerId);
+
+    await company.save();
+
+    return new ApiSuccess(200, "Offer added Successfully", {company: company});
+}
+
+module.exports = {createCompany, retriveAllCompany, retriveCompnay, updateCompany, deleteCompany, addOfferInCompany};

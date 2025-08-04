@@ -41,15 +41,16 @@ const retriveAcademicSChema = async (_id) => {
 //update result
 const updateAcademicResult = async(_id, _academicResult) => {
 
+    
     //validate schema of data
     const {error} = academicResultJoiSchema.validate(_academicResult);
-
+    
     if(error){
         throw new ApiError(400, 'Invalid schema of Acadmic Result', error.details[0].message);
     }
-
+    
     //validate presence
-    await retriveAcademicSChema(_id);
+    const res = await retriveAcademicSChema(_id);
 
     //retrive & update Data
     const updatedAcademicResult = await AcademicResult.findByIdAndUpdate(_id, _academicResult,{ new: true });

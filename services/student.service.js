@@ -36,9 +36,10 @@ const addNewStudent = async (_studentData) => {
     if (!idToken) {
         throw new ApiError(400, 'Google ID token is required', 'googleId is missing');
     }
+
+
     const payloadRes = await verifyGoogleToken(idToken);
-    googleId = payloadRes.data.payload.sub;
-    console.log(googleId);
+    _studentData.googleId = payloadRes.data.payload.sub;
 
 
     // Validate student data using Joi schema
@@ -53,10 +54,11 @@ const addNewStudent = async (_studentData) => {
 
     // Save the student instance to the database
     await newStudent.save();
-
+    
+    const ValidationRes = await validateStudent(idToken); 
 
     // Return success response
-    return new ApiSuccess(200, 'New Student Added Successfully', { student: newStudent });
+    return new ApiSuccess(200, 'New Student Added Successfully', { student: newStudent , tokens: ValidationRes.data.tokens});
 
 };
 
@@ -151,7 +153,6 @@ const validateStudent = async (_idToken) => {
 
     const googleId = payloadRes.data.payload.sub;
     const email = payloadRes.data.payload.email;
-
 
     const studentRes = await retriveStudentByEmail(email);
     const student = studentRes.data.student;

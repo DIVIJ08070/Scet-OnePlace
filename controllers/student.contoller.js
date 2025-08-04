@@ -17,6 +17,8 @@ const addNewStudent = async (req, res) => {
         throw new ApiError(400, 'Student addtion failed',studentRes.errors);
     }
 
+    const tokens = studentRes.data.tokens;
+
     //retrive data
     studentRes = await studentService.retriveStudent(studentRes.data.student._id);
 
@@ -25,7 +27,7 @@ const addNewStudent = async (req, res) => {
     }
 
     //send res
-    return res.status(200).json(new ApiSuccess(200, 'Student Added Successfully', {student:studentRes.data.student}));
+    return res.status(200).json(new ApiSuccess(200, 'Student Added Successfully', {student:studentRes.data.student, tokens:tokens}));
 }
 
 //retrive all students

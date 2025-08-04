@@ -5,6 +5,7 @@ const ApiSuccess = require('../../utils/response/ApiSuccess.util');
 
 async function verifyGoogleToken(idToken) {
 
+
   const ticket = await client.verifyIdToken({
     idToken,
     audience: process.env.GOOGLE_CLIENT_ID,
