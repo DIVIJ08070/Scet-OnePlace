@@ -64,7 +64,8 @@ const academicResultSchema = new Schema({
                 default: 0
             },
             cgpa:{
-                type: Number
+                type: Number,
+                default: 0
             }
         }}
 },{
