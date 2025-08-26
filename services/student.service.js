@@ -154,6 +154,8 @@ const validateStudent = async (_idToken) => {
     const googleId = payloadRes.data.payload.sub;
     const email = payloadRes.data.payload.email;
 
+    console.log(email);
+
     const studentRes = await retriveStudentByEmail(email);
     const student = studentRes.data.student;
 

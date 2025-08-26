@@ -9,6 +9,14 @@ const {embeddedAcademicDetailsJoiSchema} = require('./AcademicDetails.model');
 const ApiError = require('../utils/response/ApiError.util');
 
 const studentSchema = new Schema({
+  profileImage: {
+    type:String,
+    require: true
+  },
+  resume:{
+    type: String,
+    require: true
+  },
   name: {
     type: String,
     required: true
@@ -179,6 +187,8 @@ const Student = mongoose.model('Student', studentSchema);
 
   const studentJoiSchema = Joi.object({
     _id: ObjectId.optional(),
+    profileImage: Joi.string().required(),
+    resume:  Joi.string().required(),
     name: Joi.string().required(),
     enrollment_no: Joi.string().required(),
     dob: Joi.string().required(),
@@ -203,6 +213,8 @@ const Student = mongoose.model('Student', studentSchema);
 
 const embeddedStudentJoiSchema = Joi.object({
   _id: ObjectId.optional(),
+  profileImage: Joi.string().required(),
+  resume:  Joi.string().required(),
   name: Joi.string().required(),
   enrollment_no: Joi.string().required(),
   dob: Joi.string().required(),
