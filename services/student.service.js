@@ -234,7 +234,7 @@ const applyForOffer = async (_studentId, _offerId) => {
     await student.save();
 
     //update offer applied 
-    offer.applied.push({student: _studentId});
+    offer.applicants.push({student: _studentId});
     await offer.save();
 
     //return success
