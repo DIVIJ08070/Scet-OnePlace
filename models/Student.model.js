@@ -187,8 +187,8 @@ const Student = mongoose.model('Student', studentSchema);
 
   const studentJoiSchema = Joi.object({
     _id: ObjectId.optional(),
-    profileImage: Joi.string().required(),
-    resume:  Joi.string().required(),
+    profileImage: Joi.string().optional(),
+    resume:  Joi.string().optional(),
     name: Joi.string().required(),
     enrollment_no: Joi.string().required(),
     dob: Joi.string().required(),
@@ -213,8 +213,8 @@ const Student = mongoose.model('Student', studentSchema);
 
 const embeddedStudentJoiSchema = Joi.object({
   _id: ObjectId.optional(),
-  profileImage: Joi.string().required(),
-  resume:  Joi.string().required(),
+  profileImage: Joi.string().optional(),
+  resume:  Joi.string().optional(),
   name: Joi.string().required(),
   enrollment_no: Joi.string().required(),
   dob: Joi.string().required(),
