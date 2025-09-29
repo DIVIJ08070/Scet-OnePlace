@@ -4,6 +4,7 @@ const ApiSuccess = require('../utils/response/ApiSuccess.util');
 const addressService = require('../services/address.service');
 const criteriaService = require('../services/criteria.service');
 const {Company}= require('../models/Company.model');
+const companyService = require('./company.service');
 
 //Create new offer
 const createOffer = async (_offer) => {
@@ -30,11 +31,17 @@ const createOffer = async (_offer) => {
         throw new ApiError(400, 'Invalid schema of offer', error.details[0].message);
     }
 
+    
     //create instance
     const newOffer = new Offer(_offer);
-
+    
+        
+    
     //save instance
-    await newOffer.save();
+    await newOffer.save();  
+    
+    //add offer in company
+    await companyService.addOfferInCompany(newOffer._id, newOffer.company);
 
     //return res
     return new ApiSuccess(200, 'offer added successfully', {offer:newOffer});

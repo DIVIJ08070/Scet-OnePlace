@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+//const {scvhema}= require ("congoose")
 const Joi = require('joi');
 const {academicResultJoiSchema} = require('./AcademicResult.model');
 

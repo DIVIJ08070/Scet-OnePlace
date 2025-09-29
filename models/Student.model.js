@@ -9,6 +9,14 @@ const {embeddedAcademicDetailsJoiSchema} = require('./AcademicDetails.model');
 const ApiError = require('../utils/response/ApiError.util');
 
 const studentSchema = new Schema({
+  profileImage: {
+    type:String,
+    require: true
+  },
+  resume:{
+    type: String,
+    require: true
+  },
   name: {
     type: String,
     required: true
@@ -119,7 +127,6 @@ studentSchema.pre(/^find/, function (next) {
 
 studentSchema.methods.compareGoogleId = async function(plainGoogleId) {
     try {
-      console.log(plainGoogleId, this.googleId);
         const isMatch = await bcrypt.compare(plainGoogleId, this.googleId);
         return isMatch;
         } catch (err) {
@@ -180,6 +187,8 @@ const Student = mongoose.model('Student', studentSchema);
 
   const studentJoiSchema = Joi.object({
     _id: ObjectId.optional(),
+    profileImage: Joi.string().optional(),
+    resume:  Joi.string().optional(),
     name: Joi.string().required(),
     enrollment_no: Joi.string().required(),
     dob: Joi.string().required(),
@@ -204,6 +213,8 @@ const Student = mongoose.model('Student', studentSchema);
 
 const embeddedStudentJoiSchema = Joi.object({
   _id: ObjectId.optional(),
+  profileImage: Joi.string().optional(),
+  resume:  Joi.string().optional(),
   name: Joi.string().required(),
   enrollment_no: Joi.string().required(),
   dob: Joi.string().required(),

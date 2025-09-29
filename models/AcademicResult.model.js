@@ -28,26 +28,14 @@ const academicResultSchema = new Schema({
     diploma:{
         type:{
             result: {
-                type:{
-                    sem1: {
-                        type: Number,
-                    },
-                    sem2: {
-                        type: Number,
-                    },
-                    sem3: {
-                        type: Number,
-                    },
-                    sem4: {
-                        type: Number,
-                    },
-                    sem5: {
-                        type: Number,
-                    },
-                    sem6: {
-                        type: Number,
-                    },
-                    
+                type: new mongoose.Schema({
+                        sem1: Number,
+                        sem2: Number,
+                        sem3: Number,
+                        sem4: Number,
+                        sem5: Number,
+                        sem6: Number,
+                    }, { _id: false })
             },
             completion_year: {
                 type: Number,
@@ -57,38 +45,25 @@ const academicResultSchema = new Schema({
     degree: {
         type: {
             result: {
-                type:{
-                    sem1: {
-                        type: Number,
-                    },
-                    sem2: {
-                        type: Number,
-                    },
-                    sem3: {
-                        type: Number,
-                    },
-                    sem4: {
-                        type: Number,
-                    },
-                    sem5: {
-                        type: Number,
-                    },
-                    sem6: {
-                        type: Number,
-                    },
-                    sem7: {
-                        type: Number,
-                    },
-                    sem8: {
-                        type: Number,
-                    }
-                }
-            }
+                type:new mongoose.Schema({
+                        sem1: Number,
+                        sem2: Number,
+                        sem3: Number,
+                        sem4: Number,
+                        sem5: Number,
+                        sem6: Number,
+                        sem7: Number,
+                        sem8: Number
+                    }, { _id: false })
             },
             completion_year: {
                 type: Number,
             },
             backlogs: {
+                type: Number,
+                default: 0
+            },
+            cgpa:{
                 type: Number,
                 default: 0
             }
