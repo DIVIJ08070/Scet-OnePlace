@@ -106,8 +106,9 @@ const deleteCompany = async (_id) => {
 
 //add offer
 const addOfferInCompany = async (_offerId, _companyId) => {
+    
 
-    if(_offerId, _companyId){
+    if(!(_offerId) && !(_companyId)){
         throw new ApiError(400, "can't add offer");
     }
 
@@ -115,7 +116,9 @@ const addOfferInCompany = async (_offerId, _companyId) => {
 
     const company = companyRes.data.company;
 
-    company.offers.push_back(_offerId);
+    console.log(company.offers);
+
+    company.offers.push(_offerId);
 
     await company.save();
 
