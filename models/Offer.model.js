@@ -56,7 +56,23 @@ const offerSchema = new Schema({
     },
     skills:{
         type: [String]
-    }
+    },
+    selected:[{
+        type:{
+            student:{
+                type: Schema.Types.ObjectId,
+                ref: 'Student',
+                
+            },
+            salary:{
+                type: Number,
+            }
+        }
+    }],
+    applicants:[{
+        type: Schema.Types.ObjectId,
+        ref: 'Student',
+    }]  
 }, {
   timestamps: true
 });

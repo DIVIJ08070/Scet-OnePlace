@@ -8,5 +8,6 @@ router.post('/', studentController.addNewStudent);
 router.get('/', studentController.retriveAllStudents);
 router.get('/:studentId',studentController.retriveStudentById);
 router.patch('/:studentId',studentController.updateStudent);
+router.post('/apply/:offerId',studentController.applyForOffer);
 
 module.exports = router;    

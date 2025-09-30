@@ -1,8 +1,11 @@
-28-07-2025
+30-09-2025
 
-login
-create new student
-company
-offer
-view offer
-appy
+Report generation
+extra fields
+
+studentdashboard -> applied, notiification, schedule
+
+
+research
+
+link -> public

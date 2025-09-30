@@ -19,11 +19,11 @@ const criteriaSchema = new Schema({
         type: Number,
         required: true
     }],
-    branch:{
+    branch:[{
         type: String,
-        // enum:['CSE', 'IT', 'ECE', 'EEE', 'ME', 'CE', 'Other'],
+        enum:['CO', 'IT', 'AI', 'EC', 'IC', 'ME', 'EE', 'CH', 'TT'],
         required: true
-    }
+    }]
 }, {
   timestamps: true
 });
@@ -43,7 +43,7 @@ const criteriaJoiSchema = Joi.object({
         .items(Joi.number().optional())
         .min(1)
         .required(),
-    branch: Joi.string().optional(),
+    branch: Joi.array().items(Joi.string().valid('CO', 'IT', 'AI', 'EC', 'IC', 'ME', 'EE', 'CH', 'TT')).min(1).required(),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
   // If you want to enforce branch enum:

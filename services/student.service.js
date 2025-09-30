@@ -4,6 +4,7 @@ const addressService = require('../services/address.service');
 const ApiSuccess = require('../utils/response/ApiSuccess.util');
 const ApiError = require('../utils/response/ApiError.util');
 const {verifyGoogleToken} = require('../utils/authentication/verifyLoginToken.auth');
+const offerService = require('./offer.service');
 
 
 // CREATE a new student
@@ -210,4 +211,34 @@ const refreshTokens = async (_refreshToken, _student) => {
 
     return new ApiSuccess(200, 'Tokens refreshed successfully', {tokens: tokens});
 }
-module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent, validateStudent, removeToken, refreshTokens};
+
+const applyForOffer = async (_studentId, _offerId) => {
+
+    const studentRes = await retriveStudent(_studentId);
+    let student = studentRes.data.student;
+
+    //check if already applied
+    const alreadyApplied = student.applied.some(application => application.offer.toString() === _offerId);
+    if(alreadyApplied){
+        throw new ApiError(400, 'Already applied for this offer', 'Duplicate application');
+    }
+
+    const offerRes = await offerService.retriveOffer(_offerId);
+    let offer = offerRes.data.offer;
+
+    //validate stundent
+    // if(offer.criteria.gender == student.gender)
+
+    //update student applied array
+    student.applied.push({offer: _offerId});
+    await student.save();
+
+    //update offer applied 
+    offer.applicants.push({student: _studentId});
+    await offer.save();
+
+    //return success
+    return new ApiSuccess(200, 'Applied for offer successfully', {student: student, offer: offer});
+
+}
+module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent, validateStudent, removeToken, refreshTokens, applyForOffer, retriveStudentByEmail};

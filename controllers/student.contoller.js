@@ -80,6 +80,15 @@ const updateStudent = async (req, res) => {
     return res.status(200).json(new ApiSuccess(200, 'Student updated Successfully', {student:studentRes.data.student}));
 }
 
+const applyForOffer = async (req, res) => {
+   
+    const {offerId} = req.params;
+    const studentId = req.user._id;
+    const studentRes = await studentService.applyForOffer(studentId, offerId);
+
+    return res.status(studentRes.statusCode).json(studentRes);
+}
 
 
-module.exports = {addNewStudent, retriveAllStudents, updateStudent, retriveStudentById}
+
+module.exports = {addNewStudent, retriveAllStudents, updateStudent, retriveStudentById, applyForOffer}
