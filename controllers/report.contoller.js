@@ -5,3 +5,5 @@ const generateOfferReport = async (req, res) => {
 
     return res.status(offersRes.statusCode).json(offersRes);
 }
+
+module.exports = {generateOfferReport}
