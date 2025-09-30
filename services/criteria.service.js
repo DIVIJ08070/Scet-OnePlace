@@ -9,6 +9,7 @@ const addCriteria = async (_criteria) => {
     const {error} = criteriaJoiSchema.validate(_criteria);
 
     if(error){
+        console.log(error);
         throw new ApiError(400, 'Invalid data of Criteria', error.details[0].message);
     }
 

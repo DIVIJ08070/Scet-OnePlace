@@ -64,7 +64,12 @@ const studentSchema = new Schema({
   refresh_token: {
     type: String,
     default: null
-  }
+  },
+
+  applied: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Offer'
+  }]
 }, {
   timestamps: true
 });
@@ -206,6 +211,7 @@ const Student = mongoose.model('Student', studentSchema);
     academic_details: ObjectId.required(),
     address: ObjectId.required(),
     refresh_token: Joi.string().allow(null).optional(),
+  applied:Joi.array().optional().default([]),
     createdAt: Joi.date().optional(),
     updatedAt: Joi.date().optional()
   });
@@ -232,6 +238,7 @@ const embeddedStudentJoiSchema = Joi.object({
   academic_details: embeddedAcademicDetailsJoiSchema.optional(),
   address: addressJoiSchema.optional(),
   refresh_token: Joi.string().allow(null).optional(),
+  applied:Joi.array().optional().default([]),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional()
 });

@@ -218,7 +218,7 @@ const applyForOffer = async (_studentId, _offerId) => {
     let student = studentRes.data.student;
 
     //check if already applied
-    const alreadyApplied = student.applied.some(application => application.offer.toString() === _offerId);
+    const alreadyApplied = student.applied.some(application => application.toString() === _offerId);
     if(alreadyApplied){
         throw new ApiError(400, 'Already applied for this offer', 'Duplicate application');
     }
@@ -230,11 +230,11 @@ const applyForOffer = async (_studentId, _offerId) => {
     // if(offer.criteria.gender == student.gender)
 
     //update student applied array
-    student.applied.push({offer: _offerId});
+    student.applied.push( _offerId);
     await student.save();
 
     //update offer applied 
-    offer.applicants.push({student: _studentId});
+    offer.applicants.push( _studentId);
     await offer.save();
 
     //return success
