@@ -1,7 +1,7 @@
-const offerService = require('../services/offer.service');
+const reportService = require('../services/report.service');
 
 const generateOfferReport = async (req, res) => {
-    const offersRes = await offerService.generateOfferReport(req.params.id);
+    const offersRes = await reportService.generateOfferReport(req.params.id);
 
     return res.status(offersRes.statusCode).json(offersRes);
 }

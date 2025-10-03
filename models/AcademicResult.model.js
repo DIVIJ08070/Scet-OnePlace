@@ -114,6 +114,7 @@ const academicResultJoiSchema = Joi.object({
         sem7: Joi.number().optional(),
         sem8: Joi.number().optional(),
         }).optional(),
+        cgpa:Joi.number().optional(),
         completion_year: Joi.number().optional(),
         backlogs: Joi.number().default(0),
     }).optional(),
