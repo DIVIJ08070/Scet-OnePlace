@@ -14,4 +14,10 @@ router.get('/:OfferId', offerController.retriveOfferById);
 //update offer
 router.patch('/:OfferId', offerController.updateOffer);
 
+//add result
+router.post('/:offerId/addresult', offerController.addResult);
+
+//select student
+router.post('/:offerId/selecctStudent', offerController.selectStudents);
+
 module.exports = router;

@@ -60,16 +60,25 @@ const studentSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Address'
   },
-
   refresh_token: {
     type: String,
     default: null
   },
-
   applied: [{
       type: Schema.Types.ObjectId,
       ref: 'Offer'
-  }]
+  }],
+  selected: {
+    type:{
+      offer:{
+        type:Schema.Types.ObjectId,
+        ref:'Offer'
+      },
+      salary:{
+        type: Number
+      }
+    }
+  }
 }, {
   timestamps: true
 });
@@ -127,6 +136,7 @@ studentSchema.pre(/^find/, function (next) {
       path: 'address'
   // }).select('-googleId');
   });
+  this.role = "student";
   next();
 });
 
@@ -145,6 +155,7 @@ studentSchema.methods.generateTokens = async function() {
     email: this.email,
     enrollment_no: this.enrollment_no,
     name: this.name,
+    role: 'student'
   };
 
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -153,6 +164,7 @@ studentSchema.methods.generateTokens = async function() {
 
   const refreshToken =  jwt.sign({
     _id: this._id,
+    role: 'student'
   }, process.env.JWT_SECRET, {
     expiresIn: '10d'
   });

@@ -165,6 +165,9 @@ const validateStudent = async (_idToken) => {
         throw new ApiError(400, "Invalid credentials", "GoogleId is Invalid");
     }
 
+    //get tokens
+
+    //Get Tokens
     const tokens = await student.generateTokens();
     return new ApiSuccess(200, "Student validation successful", {tokens: tokens});
 }
@@ -241,4 +244,17 @@ const applyForOffer = async (_studentId, _offerId) => {
     return new ApiSuccess(200, 'Applied for offer successfully', {student: student, offer: offer});
 
 }
-module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent, validateStudent, removeToken, refreshTokens, applyForOffer, retriveStudentByEmail};
+
+const addSelection = async (_studentId, _offerId, _salary) => {
+    const studentRes = await Student.retriveStudent(_studentId);
+
+    const student = studentRes.data;
+    student.selected = {offer:_offerId, salary:_salary};
+
+    await student.save();
+
+    return ApiSuccess(200, 'Result added succcessfully', {result:result});
+
+}
+
+module.exports = {addNewStudent, retriveStudent, retriveAllStudents, updateStudent, validateStudent, removeToken, refreshTokens, applyForOffer, retriveStudentByEmail, addSelection};

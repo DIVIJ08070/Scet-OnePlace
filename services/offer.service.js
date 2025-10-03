@@ -5,6 +5,7 @@ const addressService = require('../services/address.service');
 const criteriaService = require('../services/criteria.service');
 const {Company}= require('../models/Company.model');
 const companyService = require('./company.service');
+const studentService = require('./student.service')
 
 //Create new offer
 const createOffer = async (_offer) => {
@@ -119,4 +120,32 @@ const generateOfferReport = async (_id) => {
     return new ApiSuccess(200, 'Offer Report Generated Successfully', { applicants: applicantes});
 }
 
-module.exports = {createOffer, retriveAllOffers, retriveOffer, updateOffer, deletOffer,generateOfferReport};  
+const addResult = async (_offerId, _resultId) => {
+
+    const offerRes = await retriveOffer(_offerId);
+
+    const offer = offerRes.data.offer;
+
+    offer.result.push(_resultId);
+    await offer.save();
+
+    return new ApiSuccess(200, "Result added successfully", {offer});
+}
+
+const selectStudent = async (_offerId, _resultData) => {
+    const  offerRes = await retriveOffer(_offerId);
+
+    //add student in offer
+    const offer = offerRes.data.offer;
+
+    offer.selected = _resultData;
+    await offer.save();
+
+    //add offer in student
+    for(let studentData in _resultData){
+        await studentService.addSelection(studentData.student, offer._id, studentData.salary);
+    }
+
+    return ApiSuccess(200, "Offer result addedd successfully", {offer});
+}
+module.exports = {createOffer, retriveAllOffers, retriveOffer, updateOffer, deletOffer,generateOfferReport,addResult, selectStudent};  
