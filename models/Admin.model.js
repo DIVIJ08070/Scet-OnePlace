@@ -45,7 +45,7 @@ adminSchema.methods.generateTokens = async function () {
 
     const refreshToken = jwt.sign(
         { _id: admin._id, email: admin.email, role: 'admin' },
-        process.env.JWT_REFRESH_SECRET,
+        process.env.JWT_SECRET,
         { expiresIn: '10d' }
     );
 

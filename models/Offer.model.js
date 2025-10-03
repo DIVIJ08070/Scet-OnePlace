@@ -76,6 +76,10 @@ const offerSchema = new Schema({
 }, {
   timestamps: true
 });
+offerSchema.pre(/^find/, function (next) {
+  this.populate('company').populate('location').populate('criteria').populate('result').populate('result.students');
+  next();
+});
 
 const Offer = mongoose.model('Offer', offerSchema);
 

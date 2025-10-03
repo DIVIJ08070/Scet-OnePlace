@@ -4,6 +4,10 @@ const ApiSuccess = require('../utils/response/ApiSuccess.util');
 const ApiError = require('../utils/response/ApiError.util');
 const jwt = require('jsonwebtoken');
 const { valid } = require('joi');
+const {Admin} = require('../models/Admin.model');
+
+const {verifyGoogleToken} = require('../utils/authentication/verifyLoginToken.auth');
+const {Student} = require('../models/Student.model');
 
 /**
  * Unified Login (Student or Admin)
@@ -14,7 +18,7 @@ const login = async (req, res) => {
     let ValidationRes, role, accessToken, refreshToken;
 
     // Try validating as student
-    ValidationRes = await studentService.validateStudent(googleId);
+    ValidationRes = await validateStudent(googleId);
     if (ValidationRes?.statusCode === 200 && ValidationRes.data) {
         role = "student";
         console.log(ValidationRes.data);
@@ -37,19 +41,14 @@ const login = async (req, res) => {
     // Issue refresh token (longer-lived)
     refreshToken = user.tokens.refreshToken;
     // Save refresh token in DB
-    if (role === "student") {
-        await studentService.saveToken(user._id, refreshToken);
-    } else {
-        await adminService.saveToken(user._id, refreshToken);
-    }
+    // if (role === "student") {
+    //     await studentService.saveToken(user._id, refreshToken);
+    // } else {
+    //     await adminService.saveToken(user._id, refreshToken);
+    // }
 
     return res.status(200).json(
-        new ApiSuccess(200, "Login successful", {
-            user,
-            role,
-            accessToken,
-            refreshToken
-        })
+new ApiSuccess(200, "Login successful", {tokens: {accessToken, refreshToken}, user: user})
     );
 };
 
@@ -93,5 +92,55 @@ const refreshTokens = async (req, res) => {
         new ApiSuccess(200, "Tokens refreshed successfully", refreshRes.data)
     );
 };
+
+const validateStudent = async (_idToken) => {
+
+    const payloadRes = await verifyGoogleToken(_idToken);  
+
+    const googleId = payloadRes.data.payload.sub;
+    const email = payloadRes.data.payload.email;
+
+    console.log(email);
+
+    const student = await Student.findOne({email: email});
+
+    if(!student){
+        return new ApiError(400, "Invalid credentials", "Student not found");
+    }
+
+    const isMatch = await student.compareGoogleId(googleId);
+    if(!isMatch){
+        return new ApiError(400, "Invalid credentials", "GoogleId is Invalid");
+    }
+
+    //Get Tokens
+    const tokens = await student.generateTokens();
+    return new ApiSuccess(200, "Student validation successful", {tokens: tokens});
+}
+
+const validateAdmin = async (_idToken) => {
+
+    const payloadRes = await verifyGoogleToken(_idToken);  
+
+    const googleId = payloadRes.data.payload.sub;
+    const email = payloadRes.data.payload.email;
+
+    console.log(email);
+
+    const student = await Admin.findOne({email: email});
+
+    if(!student){
+        return new ApiError(400, "Invalid credentials", "Admin not found");
+    }
+
+    const isMatch = await student.compareGoogleId(googleId);
+    if(!isMatch){
+        return new ApiError(400, "Invalid credentials", "GoogleId is Invalid");
+    }
+
+    //Get Tokens
+    const tokens = await student.generateTokens();
+    return new ApiSuccess(200, "Student validation successful", {tokens: tokens});
+}
 
 module.exports = { login, logout, refreshTokens };

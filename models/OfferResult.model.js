@@ -25,9 +25,9 @@ const offerResultJoiSchema = Joi.object({
   round_date: Joi.date().required(),
 
   students: Joi.array()
-    .items(objectId.required())
-    .min(1)
-    .required()
+    .items(objectId.optional())
+    .min(0)
+    .optional()
     .messages({
       'any.required': '"students" is required',
       'array.min': 'At least one student is required',

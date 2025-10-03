@@ -26,8 +26,12 @@ const authenticateUser = async (req, res, next) => {
         let userRes;
         if (role === "student") {
             userRes = await studentService.retriveStudent(_id);
+            console.log("user: " ,userRes.data);
+            req.user = userRes.data.student;
         } else if (role === "admin") {
             userRes = await adminService.retriveAdmin(_id);
+            console.log("admin : " ,userRes.data);
+            req.user = userRes.data.admin;
         } else {
             throw new ApiError(401, "Unauthorized", "Invalid role");
         }
@@ -36,7 +40,10 @@ const authenticateUser = async (req, res, next) => {
             throw new ApiError(401, "Unauthorized", "User not found or inactive");
         }
 
-        req.user = { ...userRes.data, role }; // attach role too
+        console.log(userRes.data);
+
+        
+        req.user.role = role // attach role too
         next();
     } catch (err) {
         console.error("Auth Error:", err);
@@ -45,5 +52,4 @@ const authenticateUser = async (req, res, next) => {
         );
     }
 };
-
 module.exports = authenticateUser;

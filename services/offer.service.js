@@ -126,7 +126,11 @@ const addResult = async (_offerId, _resultId) => {
 
     const offer = offerRes.data.offer;
 
-    offer.result.push(_resultId);
+    if(offer.result){
+        offer.result.push(_resultId);
+    }else{
+        offer.result = [_resultId];
+    }
     await offer.save();
 
     return new ApiSuccess(200, "Result added successfully", {offer});
