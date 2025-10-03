@@ -29,7 +29,7 @@ const adminSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // ===== Instance methods =====
-studentSchema.pre(/^find/, function (next) {
+adminSchema.pre(/^find/, function (next) {
   this.role = "admin";
   next();
 });
