@@ -9,7 +9,9 @@ const ApiSuccess = require('../utils/response/ApiSuccess.util');
 const addOffeResult =  async(_offerResult) => 
 {
     const {error} = offerResultJoiSchema.validate(_offerResult); 
+
     if(error){
+        console.log(error.details[0].message)
         throw new ApiError(400,'invalide data of offerresult',error.details[0].message) 
     }
     const newOfferResult = new OfferResult(_offerResult);
