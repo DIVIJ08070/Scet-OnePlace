@@ -7,6 +7,7 @@ const offerRouter = require('./routes/offer.route');
 const authRouter = require('./routes/auth.route');
 const selfRouter = require('./routes/self.route');
 const reportRouter = require('./routes/report.route');
+const adminRouter = require('./routes/admin.route');
 
 const BASE_REQUEST = '/api/v1';
 
@@ -20,5 +21,6 @@ app.use(`${BASE_REQUEST}/offer`,offerRouter);
 app.use(`${BASE_REQUEST}/auth`,authRouter);
 app.use(`${BASE_REQUEST}/me`,selfRouter);
 app.use(`${BASE_REQUEST}/report`,reportRouter);
+app.use(`${BASE_REQUEST}/admin`,adminRouter);
 
 module.exports = app;

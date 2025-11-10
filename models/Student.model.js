@@ -75,7 +75,7 @@ const studentSchema = new Schema({
         ref:'Offer'
       },
       salary:{
-        type: Number
+        type: Number  
       }
     }
   }
