@@ -8,6 +8,7 @@ const authRouter = require('./routes/auth.route');
 const selfRouter = require('./routes/self.route');
 const reportRouter = require('./routes/report.route');
 const adminRouter = require('./routes/admin.route');
+const {errorHandler} = require("./middlewares/errorHandler.middleware")
 
 const BASE_REQUEST = '/api/v1';
 
@@ -22,5 +23,7 @@ app.use(`${BASE_REQUEST}/auth`,authRouter);
 app.use(`${BASE_REQUEST}/me`,selfRouter);
 app.use(`${BASE_REQUEST}/report`,reportRouter);
 app.use(`${BASE_REQUEST}/admin`,adminRouter);
+
+app.use(errorHandler);
 
 module.exports = app;

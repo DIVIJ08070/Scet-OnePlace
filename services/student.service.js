@@ -234,7 +234,7 @@ const applyForOffer = async (_studentId, _offerId) => {
     let offer = offerRes.data.offer;
 
     if(offer.criteria){
-        const criteriaRes = await criteriaService.retriveCriteria(offerRes.criteria);
+        const criteriaRes = await criteriaService.retriveCriteria(offer.criteria);
         let criteria = criteriaRes.data.criteria;
 
         //validate stundent
@@ -242,18 +242,18 @@ const applyForOffer = async (_studentId, _offerId) => {
         //validate gender
         if(criteria.gender){
             if(criteria.gender != student.gender){
-                throw new ApiError(400, 'Invalid gender', 'gender not allowd'); 
+                throw new ApiError(400, 'Invalid gender', 'Invalid gender'); 
             }
         }
 
         if(!student.academic_details){
-             throw new ApiError(400, 'Academic details not entered', 'NOt aalowed to apply'); 
+             throw new ApiError(400, 'Academic details not entered', 'Academic details not entered'); 
         }
 
         const academicDetailsRes = await academiDetailsService.retriveAcademicDetails(student.academic_details);
 
         if(!academicDetailsRes.data.academicDetails.result){
-             throw new ApiError(400, 'Academic reasult is not present', 'Not allowed to apply'); 
+             throw new ApiError(400, 'Academic reasult is not present', 'Academic reasult is not present'); 
         }
 
         const academicResultRes = await academicResultService.retriveAcademicSChema(academicDetailsRes.data.academicDetails.result);
@@ -262,20 +262,20 @@ const applyForOffer = async (_studentId, _offerId) => {
 
         //validate result
         if(result.degree.cgpa < criteria.min_result){
-            throw new ApiError(400, 'Low Rsult', 'student not allowed'); 
+            throw new ApiError(400, 'Low Rsult', 'Low Rsult'); 
         }
 
         //validate backlog
         if(result.degree.backlogs > criteria.max_backlog){
-            throw new ApiError(400, 'High backlogs', 'student not allowed'); 
+            throw new ApiError(400, 'High backlogs', 'High backlogs'); 
         }
 
         //validate passout year
-        const allowed = criteria.passout_year.some(year => year === result.degree.completion_year);
+        // const allowed = criteria.passout_year.some(year => year === result.degree.completion_year);
 
-        if(!allowed){
-            throw new ApiError(400, 'Passout year invalid', 'student not allowed'); 
-        }
+        // if(!allowed){
+        //     throw new ApiError(400, 'Passout year invalid', 'Passout year invalid'); 
+        // }
 
         //validate branch
         
@@ -290,11 +290,61 @@ const applyForOffer = async (_studentId, _offerId) => {
     offer.applicants.push( _studentId);
     await offer.save();
 
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: student.email,
-        subject:"YOu have applied to offer by TNP",
-    });
+    console.log(process.env.EMAIL_USER, " ", student.email)
+
+await transporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: student.email,
+  subject: `Application Received for ${offer.title}`,
+  html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+</head>
+<body style="font-family: Arial, sans-serif; background:#f5f7fb; padding:20px;">
+  <div style="max-width:680px; margin:auto; background:#ffffff; padding:22px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06);">
+
+    <h2 style="color:#0b5fff; margin:0 0 8px 0;">Application Received</h2>
+
+    <p style="margin:6px 0 18px 0;">Hello <strong>${student.name}</strong>,</p>
+
+    <p style="margin:0 0 12px 0;">Your application has been submitted successfully for the offer below:</p>
+
+    <div style="background:#f0f6ff; padding:14px; border-radius:6px; margin:14px 0;">
+      <p style="margin:6px 0;"><strong>Role:</strong> ${offer.role}</p>
+      <p style="margin:6px 0;"><strong>Company:</strong> ${offer.company?.name}</p>
+      <p style="margin:6px 0;"><strong>Drive Type:</strong> ${offer.drive}</p>
+      <p style="margin:6px 0;"><strong>Type:</strong> ${offer.type}</p>
+      <p style="margin:6px 0;"><strong>Sector:</strong> ${offer.sector}</p>
+      <p style="margin:6px 0;"><strong>Location:</strong> ${offer.location?.formattedAddress || offer.location?.city || 'Not specified'}</p>
+      <p style="margin:6px 0;"><strong>Total Openings:</strong> ${offer.total_opening}</p>
+      <p style="margin:6px 0;"><strong>Salary:</strong> ${offer.salary?.min || ''} - ${offer.salary?.max}</p>
+      <p style="margin:6px 0;"><strong>Skills:</strong> ${offer.skills?.length ? offer.skills.join(', ') : 'Not specified'}</p>
+      <p style="margin:6px 0;"><strong>Offer ID:</strong> ${offer._id}</p>
+      <p style="margin:6px 0; color:#6b7280;"><em>Applied on: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</em></p>
+    </div>
+
+    <p style="margin:12px 0;">Our TNP team will review your application. If shortlisted, you will receive an email or phone call with the next steps.</p>
+
+    <div style="margin:18px 0;">
+      <a href="${process.env.FRONTEND_URL}/offers/${offer._id}"
+         style="display:inline-block; padding:10px 16px; background:#0b5fff; color:#fff; text-decoration:none; border-radius:6px;">
+        View Offer Details
+      </a>
+    </div>
+
+    <p style="margin:0 0 8px 0;">Best regards,<br/><strong>TNP Cell</strong></p>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid #eef2f7;" />
+    <p style="font-size:12px; color:#777; margin:0;">If you did not apply for this role, please contact the TNP Cell immediately.</p>
+  </div>
+</body>
+</html>
+
+  `
+});
 
     //return success
     return new ApiSuccess(200, 'Applied for offer successfully', {student: student, offer: offer});
