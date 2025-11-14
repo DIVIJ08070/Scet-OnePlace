@@ -5,6 +5,10 @@ const ApiSuccess = require('../utils/response/ApiSuccess.util');
 const ApiError = require('../utils/response/ApiError.util');
 const {verifyGoogleToken} = require('../utils/authentication/verifyLoginToken.auth');
 const offerService = require('./offer.service');
+const criteriaService = require("./criteria.service");
+const academicDetailsService = require('./academicDetails.service');
+const academicResultService = require('./academicResult.service');
+const {transporter} = require('../config/mailer.config')
 
 
 // CREATE a new student
@@ -229,8 +233,54 @@ const applyForOffer = async (_studentId, _offerId) => {
     const offerRes = await offerService.retriveOffer(_offerId);
     let offer = offerRes.data.offer;
 
-    //validate stundent
-    // if(offer.criteria.gender == student.gender)
+    if(offer.criteria){
+        const criteriaRes = await criteriaService.retriveCriteria(offerRes.criteria);
+        let criteria = criteriaRes.data.criteria;
+
+        //validate stundent
+        
+        //validate gender
+        if(criteria.gender){
+            if(criteria.gender != student.gender){
+                throw new ApiError(400, 'Invalid gender', 'gender not allowd'); 
+            }
+        }
+
+        if(!student.academic_details){
+             throw new ApiError(400, 'Academic details not entered', 'NOt aalowed to apply'); 
+        }
+
+        const academicDetailsRes = await academiDetailsService.retriveAcademicDetails(student.academic_details);
+
+        if(!academicDetailsRes.data.academicDetails.result){
+             throw new ApiError(400, 'Academic reasult is not present', 'Not allowed to apply'); 
+        }
+
+        const academicResultRes = await academicResultService.retriveAcademicSChema(academicDetailsRes.data.academicDetails.result);
+
+        const result = academicResultRes.data.academicResult;
+
+        //validate result
+        if(result.degree.cgpa < criteria.min_result){
+            throw new ApiError(400, 'Low Rsult', 'student not allowed'); 
+        }
+
+        //validate backlog
+        if(result.degree.backlogs > criteria.max_backlog){
+            throw new ApiError(400, 'High backlogs', 'student not allowed'); 
+        }
+
+        //validate passout year
+        const allowed = criteria.passout_year.some(year => year === result.degree.completion_year);
+
+        if(!allowed){
+            throw new ApiError(400, 'Passout year invalid', 'student not allowed'); 
+        }
+
+        //validate branch
+        
+    }
+    
 
     //update student applied array
     student.applied.push( _offerId);
@@ -239,6 +289,12 @@ const applyForOffer = async (_studentId, _offerId) => {
     //update offer applied 
     offer.applicants.push( _studentId);
     await offer.save();
+
+    await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: student.email,
+        subject:"YOu have applied to offer by TNP",
+    });
 
     //return success
     return new ApiSuccess(200, 'Applied for offer successfully', {student: student, offer: offer});
